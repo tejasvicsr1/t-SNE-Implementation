@@ -1,77 +1,22 @@
-
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sammon import sammon
+from sklearn import datasets
+from scipy.spatial.distance import cdist
 from sklearn.decomposition import PCA
 import matplotlib as mpl
 from sklearn.manifold import Isomap
 from sklearn.datasets import fetch_olivetti_faces
 
-def load_from_csv(filename):
-    """
-    Loads a CSV file into a pandas dataframe.
-    """
-    return pd.read_csv(filename)
-
-def load_from_npy(filename):
-    """
-    Loads a NPY file into a pandas dataframe.
-    """
-    return np.load(filename)
-
-
-
-
-import os
-from six.moves import cPickle as pickle
-from six.moves import urllib
-import numpy as np
-import gzip
-
-DEFAULT_SOURCE_URL = 'http://deeplearning.net/data/mnist/mnist.pkl.gz'
-
-
-def _make_dir_if_not_exist(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-
-def _maybe_download(filename, directory, source_url):
-    _make_dir_if_not_exist(directory)
-    filepath = os.path.join(directory, filename)
-    if not os.path.exists(filepath):
-        print('Downloading', filename, '...')
-        filepath, _ = urllib.request.urlretrieve(source_url, filepath)
-        print('Successfully downloaded', filename)
-    return filepath
-
-def load_mnist(datasets_path, digits_to_keep=[0, 1], N=500):
-    
-    # Download the dataset if we don't have it already
-    path = _maybe_download('mnist.pkl.gz', datasets_path, DEFAULT_SOURCE_URL)
-    
-    # Load the dataset
-    f = gzip.open(path, 'rb')
-    train_set, _, _ = pickle.load(f)
-    f.close()
-    
-    # Find indices of digits in training set that we will keep
-    includes_matrix = [(train_set[1]==i) for i in digits_to_keep]
-    keep_indices = np.sum(includes_matrix, 0).astype(np.bool)
-    
-    # Drop images of any other digits
-    train_set = [train_set[0][keep_indices], train_set[1][keep_indices]]
-    
-    # Only keep the first N examples
-    N = min(N, train_set[0].shape[0])
-    train_set = [train_set[0][:N], train_set[1][:N]]
-    
-    return train_set
+# Set global parameters
+NUM_POINTS = 1000            # Number of samples from MNIST
+PERPLEXITY = 20
+SEED = 42                    # Random seed
+MOMENTUM = 0.9
+LEARNING_RATE = 10.
+NUM_ITERS = 500             # Num iterations to train for
+NUM_PLOTS = 5               # Num. times to plot in training
+PCA_DIM_NUMBER = 30
 
 def run_PCA(data, labels, n_components=2):
     """
@@ -80,5 +25,19 @@ def run_PCA(data, labels, n_components=2):
     pca = PCA(n_components=n_components)
     principalComponents = pca.fit_transform(data)
     principalDf = pd.DataFrame(data = principalComponents)
-    principalDf['label'] = labels
     return principalDf
+
+def load_from_csv(filename):
+    """
+    Loads a CSV file into a pandas dataframe.
+    """
+    dataset = pd.read_csv(filename)
+    train_data = dataset.sample(n=NUM_POINTS, random_state=SEED)
+
+    y = train_data['label']
+
+    X = train_data.drop(columns=['label'])
+    X = run_PCA(train_data, y, PCA_DIM_NUMBER)
+    X = pd.DataFrame(X).to_numpy()
+
+    return X, y

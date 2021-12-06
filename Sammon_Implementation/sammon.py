@@ -1,7 +1,6 @@
-def sammon(x, n, display = 2, inputdist = 'raw', maxhalves = 20, maxiter = 500, tolfun = 1e-9, init = 'default'):
+from Helpers.header import *
 
-    import numpy as np
-    from scipy.spatial.distance import cdist
+def sammon(x, n, display = 2, inputdist = 'raw', maxhalves = 20, maxiter = 500, tolfun = 1e-9, init = 'default'):
 
     """Perform Sammon mapping on dataset x
     y = sammon(x) applies the Sammon nonlinear mapping procedure on
@@ -142,3 +141,13 @@ def sammon(x, n, display = 2, inputdist = 'raw', maxhalves = 20, maxiter = 500, 
     E = E * scale
 
     return [y,E]
+
+def run_sammon(data, labels, n_components=2):
+    """
+    Runs Sammon on the data.
+    """
+    new_data = np.delete(data, -1, axis=1)
+    [y_new, E] = sammon(new_data, n_components)
+    y_new = pd.DataFrame(y_new)
+    y_new['label'] = labels
+    return y_new
