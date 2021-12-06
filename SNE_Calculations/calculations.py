@@ -106,12 +106,16 @@ def p_joint(X, target_perplexity):
     """
     # Get the negative euclidian distances matrix for our data
     distances = neg_squared_euc_dists(X)
+    print('a')
     # Find optimal sigma for each row of this distances matrix
     sigmas = find_optimal_sigmas(distances, target_perplexity)
+    print('b')
     # Calculate the probabilities based on these optimal sigmas
     p_conditional = calc_prob_matrix(distances, sigmas)
+    print('c')
     # Go from conditional to joint probabilities matrix
     P = p_conditional_to_joint(p_conditional)
+    print('d')
     return P
 
 def estimate_sne(X, y, P, rng, num_iters, q_fn, grad_fn, learning_rate,
@@ -139,8 +143,9 @@ def estimate_sne(X, y, P, rng, num_iters, q_fn, grad_fn, learning_rate,
         Y_m1 = Y.copy()
 
     # Start gradient descent loop
+    print(plot, num_iters)
     for i in range(num_iters):
-
+        print(i)
         # Get Q and distances (distances only used for t-SNE)
         Q, distances = q_fn(Y)
         # Estimate gradients with respect to Y
@@ -156,6 +161,7 @@ def estimate_sne(X, y, P, rng, num_iters, q_fn, grad_fn, learning_rate,
 
         # Plot sometimes
         if plot and (i % (num_iters / plot) == 0 or i == num_iters - 1):
+            print("I came here")
             categorical_scatter_2d(Y, y, alpha=1.0, ms=6,
                                    show=True, figsize=(9, 6), title=title, iters=i if i < num_iters - 1 else i + 1)
 
