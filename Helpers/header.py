@@ -9,7 +9,7 @@ from sklearn.manifold import Isomap
 from sklearn.datasets import fetch_olivetti_faces
 
 # Set global parameters
-NUM_POINTS = 5000            # Number of samples from MNIST
+NUM_POINTS = 10000            # Number of samples from MNIST
 PERPLEXITY = 20
 SEED = 42                    # Random seed
 MOMENTUM = 0.9
